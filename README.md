@@ -1,5 +1,6 @@
-*This project is not actively maintained.*
+> This repository is a unofficial personal fork of [memononen/nanovg](https://github.com/memononen/nanovg), which may or might works not like official version!
 
+ 
 NanoVG
 ==========
 
@@ -100,26 +101,12 @@ The data for the whole frame is buffered and flushed in `nvgEndFrame()`. The fol
 
 See the header file [nanovg.h](/src/nanovg.h) for API reference.
 
-## Ports
-
-- [DX11 port](https://github.com/cmaughan/nanovg) by [Chris Maughan](https://github.com/cmaughan)
-- [Metal port](https://github.com/ollix/MetalNanoVG) by [Olli Wang](https://github.com/olliwang)
-- [bgfx port](https://github.com/bkaradzic/bgfx/tree/master/examples/20-nanovg) by [Branimir Karadžić](https://github.com/bkaradzic)
-
-## Projects using NanoVG
-
-- [Processing API simulation by vinjn](https://github.com/island-org/island/blob/master/include/sketch2d.h)
-- [NanoVG for .NET, C# P/Invoke binding](https://github.com/sbarisic/nanovg_dotnet)
-
 ## License
 The library is licensed under [zlib license](LICENSE.txt)
 Fonts used in examples:
 - Roboto licensed under [Apache license](http://www.apache.org/licenses/LICENSE-2.0)
 - Entypo licensed under CC BY-SA 4.0.
 - Noto Emoji licensed under [SIL Open Font License, Version 1.1](http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)
-
-## Discussions
-[NanoVG mailing list](https://groups.google.com/forum/#!forum/nanovg)
 
 ## Links
 Uses [stb_truetype](http://nothings.org) (or, optionally, [freetype](http://freetype.org)) for font rendering.
