@@ -21,7 +21,6 @@
 #define GLFW_INCLUDE_GLEXT
 #include <GLFW/glfw3.h>
 #include "nanovg.h"
-#define NANOVG_GLES3_IMPLEMENTATION
 #include "nanovg_gl.h"
 #include "nanovg_gl_utils.h"
 #include "demo.h"
@@ -59,6 +58,8 @@ int main()
 	PerfGraph fps;
 	double prevt = 0;
 
+    glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_D3D11);
+
 	if (!glfwInit()) {
 		printf("Failed to init GLFW.");
 		return -1;
@@ -68,9 +69,11 @@ int main()
 
 	glfwSetErrorCallback(errorcb);
 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
 	window = glfwCreateWindow(1000, 600, "NanoVG", NULL, NULL);
 //	window = glfwCreateWindow(1000, 600, "NanoVG", glfwGetPrimaryMonitor(), NULL);
@@ -97,53 +100,64 @@ int main()
 	glfwSetTime(0);
 	prevt = glfwGetTime();
 
+    float targetFPS = 145.0f;
+    float targetTimePerFrame = 1.0f / targetFPS;
+
+    double mx, my, ft, dt;
+    int winWidth, winHeight;
+    int fbWidth, fbHeight;
+    float pxRatio;
+
+    char enable_framerate_lock = 0;
+
 	while (!glfwWindowShouldClose(window))
 	{
-		double mx, my, t, dt;
-		int winWidth, winHeight;
-		int fbWidth, fbHeight;
-		float pxRatio;
+        ft = glfwGetTime();
+        dt = ft - prevt;
 
-		t = glfwGetTime();
-		dt = t - prevt;
-		prevt = t;
-		updateGraph(&fps, dt);
+        if (enable_framerate_lock && targetTimePerFrame >= dt) {
+            // Update with delta time here
+            continue;
+        }
 
-		glfwGetCursorPos(window, &mx, &my);
-		glfwGetWindowSize(window, &winWidth, &winHeight);
-		glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-		// Calculate pixel ration for hi-dpi devices.
-		pxRatio = (float)fbWidth / (float)winWidth;
+        prevt = ft;
+        updateGraph(&fps, dt);
 
-		// Update and render
-		glViewport(0, 0, fbWidth, fbHeight);
-		if (premult)
-			glClearColor(0,0,0,0);
-		else
-			glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+        glfwGetCursorPos(window, &mx, &my);
+        glfwGetWindowSize(window, &winWidth, &winHeight);
+        glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+        // Calculate pixel ration for hi-dpi devices.
+        pxRatio = (float)fbWidth / (float)winWidth;
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
+        // Update and render
+        glViewport(0, 0, fbWidth, fbHeight);
+        if (premult)
+            glClearColor(0,0,0,0);
+        else
+            glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
-		nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_CULL_FACE);
+        glDisable(GL_DEPTH_TEST);
 
-		renderDemo(vg, mx,my, winWidth,winHeight, t, blowup, &data);
-		renderGraph(vg, 5,5, &fps);
+        nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
 
-		nvgEndFrame(vg);
+        renderDemo(vg, mx,my, winWidth,winHeight, ft, blowup, &data);
+        renderGraph(vg, 5,5, &fps);
 
-		glEnable(GL_DEPTH_TEST);
+        nvgEndFrame(vg);
 
-		if (screenshot) {
-			screenshot = 0;
-			saveScreenShot(fbWidth, fbHeight, premult, "dump.png");
-		}
-		
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+        glEnable(GL_DEPTH_TEST);
+
+        if (screenshot) {
+            screenshot = 0;
+            saveScreenShot(fbWidth, fbHeight, premult, "dump.png");
+        }
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
 	}
 
 	freeDemoData(vg, &data);

@@ -41,11 +41,11 @@ enum NVGcreateFlags {
 #  define NANOVG_GL3 1
 #  define NANOVG_GL_IMPLEMENTATION 1
 #  define NANOVG_GL_USE_UNIFORMBUFFER 1
-#elif defined NANOVG_GLES2_IMPLEMENTATION
-#  define NANOVG_GLES2 1
-#  define NANOVG_GL_IMPLEMENTATION 1
 #elif defined NANOVG_GLES3_IMPLEMENTATION
 #  define NANOVG_GLES3 1
+#  define NANOVG_GL_IMPLEMENTATION 1
+#elif defined NANOVG_GLES2_IMPLEMENTATION
+#  define NANOVG_GLES2 1
 #  define NANOVG_GL_IMPLEMENTATION 1
 #endif
 
@@ -443,8 +443,6 @@ static int glnvg__createShader(GLNVGshader* shader, const char* name, const char
 	frag = glCreateShader(GL_FRAGMENT_SHADER);
 	str[2] = vshader;
 	glShaderSource(vert, 3, str, 0);
-	str[2] = fshader;
-	glShaderSource(frag, 3, str, 0);
 
 	glCompileShader(vert);
 	glGetShaderiv(vert, GL_COMPILE_STATUS, &status);
@@ -452,6 +450,9 @@ static int glnvg__createShader(GLNVGshader* shader, const char* name, const char
 		glnvg__dumpShaderError(vert, name, "vert");
 		return 0;
 	}
+
+    str[2] = fshader;
+    glShaderSource(frag, 3, str, 0);
 
 	glCompileShader(frag);
 	glGetShaderiv(frag, GL_COMPILE_STATUS, &status);

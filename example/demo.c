@@ -860,7 +860,7 @@ void drawParagraph(NVGcontext* vg, float x, float y, float width, float height, 
 {
 	NVGtextRow rows[3];
 	NVGglyphPosition glyphs[100];
-	const char* text = "This is longer chunk of text.\n  \n  Would have used lorem ipsum but she    was busy jumping over the lazy dog with the fox and all the men who came to the aid of the party.🎉";
+	const char text[] = "This is longer chunk of text.\n  \n  Would have used lorem ipsum\0 but she    was busy jumping over the lazy dog with the fox and all the men who came to the aid of the party.🎉中文";
 	const char* start;
 	const char* end;
 	int nrows, i, nglyphs, j, lnum = 0;
@@ -885,7 +885,7 @@ void drawParagraph(NVGcontext* vg, float x, float y, float width, float height, 
 	// or to iterate over the text just few lines (or just one) at a time.
 	// The "next" variable of the last returned item tells where to continue.
 	start = text;
-	end = text + strlen(text);
+    end = text + sizeof (text);
 	while ((nrows = nvgTextBreakLines(vg, start, end, width, rows, 3))) {
 		for (i = 0; i < nrows; i++) {
 			NVGtextRow* row = &rows[i];
